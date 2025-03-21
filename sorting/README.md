@@ -12,8 +12,10 @@ python3 [path_to_program] [number_to_calculate] [optional: print_sort_array]
 
 ### Algorithm Runtimes
 
-| Algorithm       | Time Complexity |
-|-----------------|-----------------|
-| `bubble.py`     | O(n²)           |
-| `insertion.py`  | O(n²)           |
-| `mergeSort.py`  | O(n log n)      |
+| Algorithm            | Time Complexity |
+|----------------------|-----------------|
+| `bubble.py`          | O(n²)           |
+| `insertion.py`       | O(n²)           |
+| `mergeSort.py`       | O(n log n)      |
+| `quickSort.py`       | O(n log n)      |
+| `randomQuickSort.py` | O(n log n)      |
