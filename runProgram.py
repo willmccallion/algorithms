@@ -1,9 +1,16 @@
 import subprocess
 import time
-import matplotlib.pyplot as plt 
+import matplotlib.pyplot as plt
 import concurrent.futures
 import os
 import sys
+
+RED = "\033[0;31m"
+BOLD = "\033[1m"
+RESET = "\033[0m"
+GREEN = "\033[0;32m"
+LIGHT_PURPLE = "\033[1;35m"
+CYAN = "\033[0;36m"
 
 # Runs and times the program at a specific path.
 def runProg(n: int, path: str) -> tuple[int, str]:
@@ -22,7 +29,7 @@ def main():
     nValues = []
     times = {prog: [] for prog in programs}
     active_programs = set(programs)
-    
+
     max_n = int(sys.argv[2]) if len(sys.argv) > 2 else 100000000
     max_time = int(sys.argv[3]) if len(sys.argv) > 3 else 1000
 
@@ -30,6 +37,10 @@ def main():
 
     n = 0
     increment = 1
+    incrementTimer = 30
+
+    print("Starting now...")
+    print(f"The number of programs left is {CYAN}{len(active_programs)}.{RESET}\n")
 
     # Uses multiple threads to speed up execution
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -48,17 +59,21 @@ def main():
                     times[prog].append(elapsed)
                     if elapsed > max_time:
                         active_programs.remove(prog)
+                        print(f"Program {RED}{BOLD}{prog}{RESET} exceeded max time of {max_time}ms and was {RED}{BOLD}removed.{RESET}\n")
                 except concurrent.futures.TimeoutError:
-                    print(f"Program {prog} exceeded max time and was removed.")
                     active_programs.remove(prog)
+                    print(f"Program {RED}{BOLD}{prog}{RESET} exceeded max time of {max_time}ms and was {RED}{BOLD}removed.{RESET}\n")
 
             # Add the n value to the x axis for plot and print information about the execution of the programs
             nValues.append(n)
-            print(f"n = {n}, active programs = {[program for program in active_programs]}")
 
             # Every minute increase the increment amount of n by a power of 10
-            if time.time() - 60 > start:
+            if time.time() - incrementTimer > start:
+                print(f"{GREEN}Increasing{RESET} time from {LIGHT_PURPLE}{incrementTimer}{RESET} to {LIGHT_PURPLE}{incrementTimer+30}{RESET}.")
+                print(f"The number of programs left is {CYAN}{len(active_programs)}.{RESET}")
+                print(f"n = {n}, active programs = {[program for program in active_programs]}\n")
                 start = time.time()
+                incrementTimer += 30
                 increment *= 10
 
             n += increment
