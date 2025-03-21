@@ -22,6 +22,15 @@ def runProg(n: int, path: str) -> tuple[int, str]:
     elapsed_ms = (time.time() - start) * 1000
     return elapsed_ms, result.stdout.decode().strip()
 
+def printProgs(allPrograms: list, activePrograms) -> None:
+    print("-"*100)
+    for program in allPrograms:
+        if program in activePrograms:
+            print(f"{program}: {GREEN}ACTIVE{RESET}")
+        else:
+            print(f"{program}: {RED}INACTIVE{RESET}")
+    print("-"*100)
+
 # Runs the programs in a specific directory with a max n value and max time.
 def main():
     # Initial program requirements to test runtimes
@@ -39,8 +48,11 @@ def main():
     increment = 1
     incrementTimer = 30
 
+    print("-"*100)
     print("Starting now...")
-    print(f"The number of programs left is {CYAN}{len(active_programs)}.{RESET}\n")
+    print(f"{GREEN}Increasing n{RESET} by {LIGHT_PURPLE}{increment}{RESET} for the next {LIGHT_PURPLE}{incrementTimer}s{RESET}.")
+    print(f"The number of programs left is {CYAN}{len(active_programs)}.{RESET}")
+    printProgs(programs, active_programs)
 
     # Uses multiple threads to speed up execution
     with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -59,23 +71,24 @@ def main():
                     times[prog].append(elapsed)
                     if elapsed > max_time:
                         active_programs.remove(prog)
-                        print(f"Program {RED}{BOLD}{prog}{RESET} exceeded max time of {max_time}ms and was {RED}{BOLD}removed.{RESET}\n")
+                        print(f"Program {RED}{BOLD}{prog}{RESET} exceeded max time of {max_time}ms at {RED}n = {n:.2E}{RESET} and was {RED}{BOLD}removed.{RESET}")
+                        printProgs(programs, active_programs)
                 except concurrent.futures.TimeoutError:
                     active_programs.remove(prog)
-                    print(f"Program {RED}{BOLD}{prog}{RESET} exceeded max time of {max_time}ms and was {RED}{BOLD}removed.{RESET}\n")
+                    print(f"Program {RED}{BOLD}{prog}{RESET} exceeded max time of {max_time}ms at {RED}n = {n:.2E}{RESET} and was {RED}{BOLD}removed.{RESET}")
+                    printProgs(programs, active_programs)
 
             # Add the n value to the x axis for plot and print information about the execution of the programs
             nValues.append(n)
 
             # Every minute increase the increment amount of n by a power of 10
             if time.time() - incrementTimer > start:
-                print(f"{GREEN}Increasing{RESET} time from {LIGHT_PURPLE}{incrementTimer}{RESET} to {LIGHT_PURPLE}{incrementTimer+30}{RESET}.")
-                print(f"The number of programs left is {CYAN}{len(active_programs)}.{RESET}")
-                print(f"n = {n}, active programs = {[program for program in active_programs]}\n")
                 start = time.time()
                 incrementTimer += 30
                 increment *= 10
-
+                print(f"{GREEN}Increasing n{RESET} by {LIGHT_PURPLE}{increment}{RESET} for the next {LIGHT_PURPLE}{incrementTimer}s{RESET}.")
+                print(f"The number of programs left is {CYAN}{len(active_programs)}.{RESET}")
+                printProgs(programs, active_programs)
             n += increment
 
     # Create a graph with the results and save it in the directory of the algorithms
